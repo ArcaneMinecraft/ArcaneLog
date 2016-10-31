@@ -1,0 +1,2 @@
+# ArcaneModeration
+Moderation helper plugin
