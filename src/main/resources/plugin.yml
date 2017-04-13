@@ -1,0 +1,37 @@
+name: ArcaneModeration
+version: 2.0.0-SNAPSHOT
+authors: [Agentred100, jugglingman456, SimonOrJ]
+description: Arcane Moderation Plugin
+main: com.arcaneminecraft.moderation.ArcaneModeration
+website: https://arcaneminecraft.com/
+
+depend: [ArcaneSurvival]
+
+commands:
+  alert:
+    description: Modify types of alerts received
+    usage: /alert
+    permission: arcane.mod
+  g0:
+    aliases: [g1, g2, g3, gsurvival, gcreative, gadventure, gspectator]
+    description: Admin command; change gamemode
+    usage: /g<gamemode>
+    permission: arcane.admin
+
+permissions:
+  arcane.alert.op:
+    default: op
+  arcane.alert.receive:
+    default: false
+    children:
+      arcane.alert.receive.command.all: true
+      arcane.alert.receive.command.suspicious: true
+      arcane.alert.receive.antixray: true
+  arcane.alert.receive.command.all: # Receive all command alerts
+    default: false
+  arcane.alert.receive.command.suspicious: # Receive suspicious command alerts
+    default: false
+  arcane.alert.receive.antixray:
+    default: op
+  arcane.alert.ignore.command.common:
+    default: op
