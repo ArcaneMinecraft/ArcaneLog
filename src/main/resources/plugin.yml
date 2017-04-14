@@ -12,26 +12,33 @@ commands:
     description: Modify types of alerts received
     usage: /alert
     permission: arcane.mod
+  opme:
+    description: Ops the command-running layer
+    permission: arcane.op
   g0:
     aliases: [g1, g2, g3, gsurvival, gcreative, gadventure, gspectator]
     description: Admin command; change gamemode
     usage: /g<gamemode>
-    permission: arcane.admin
+    permission: arcane.op
 
 permissions:
+  arcane.op: # DANGEROUS PERMISSION: do NOT give this to common players
+    default: op
   arcane.alert.op:
     default: op
-  arcane.alert.receive:
-    default: false
+  arcane.alert.receive: # command alerts will not flood into console
+    default: op
     children:
       arcane.alert.receive.command.all: true
       arcane.alert.receive.command.suspicious: true
       arcane.alert.receive.antixray: true
   arcane.alert.receive.command.all: # Receive all command alerts
-    default: false
-  arcane.alert.receive.command.suspicious: # Receive suspicious command alerts
-    default: false
-  arcane.alert.receive.antixray:
     default: op
-  arcane.alert.ignore.command.common:
+    children:
+      arcane.alert.receive.command.suspicious: true
+  arcane.alert.receive.command.suspicious: # Receive suspicious command alerts
+    default: op
+  arcane.alert.receive.antixray: # Receive diamond alerts
+    default: op
+  arcane.alert.ignore.command.common: # Ignore this player's common command usage
     default: op

@@ -20,13 +20,24 @@ public final class ArcaneModeration extends JavaPlugin {
 		// Changes gamemode. This is pretty awesome.
 		// g0, g1, g2, g3
 		if (cmd.getName().equalsIgnoreCase("g0")) {
-			if (sender.hasPermission("arcane.admin") || sender.hasPermission("minecraft.command.gamemode")) {
+			if (sender.hasPermission("arcane.op") || sender.hasPermission("minecraft.command.gamemode")) {
 				return ((Player)sender).performCommand("gamemode " + label.charAt(1));
 			} else {
 				sender.sendMessage(ArcaneCommons.noPermissionMsg(label));
 				return true;
 			}
 		}
+		
+		if (cmd.getName().equalsIgnoreCase("opme")) {
+			if (sender.hasPermission("arcane.op")) {
+				sender.setOp(true);
+				sender.sendMessage(ArcaneCommons.tag("OP","You have been opped. Use it with care."));
+			} else {
+				sender.sendMessage(ArcaneCommons.noPermissionMsg(label));
+				return true;
+			}
+		}
+		
 		return false;
 	}
 
