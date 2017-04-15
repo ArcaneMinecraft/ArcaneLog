@@ -28,8 +28,8 @@ import net.md_5.bungee.api.chat.TextComponent;
 public class Alert implements CommandExecutor, Listener {
 	private final ArcaneModeration plugin;
 	private final BukkitScheduler scheduler;
-	private final TextComponent TAG_DIAMOND_ALERT; // NOTE: Don't addExtra this.
-	private final TextComponent TAG_COMMAND_ALERT; // NOTE: Don't addExtra this.
+	private final TextComponent TEMPLATE_DIAMOND_ALERT; // NOTE: Don't addExtra this.
+	private final TextComponent TEMPLATE_COMMAND_ALERT; // NOTE: Don't addExtra this.
 	private static final String TAG = "Alert";
 	private static final int DIAMOND_LEVEL = 16; // AntiXRay
 	private static final long DIAMOND_DELAY = 160L; // in ticks: 160 ticks = 8 seconds, enough for mining 8 diamonds with regular pickaxe
@@ -38,10 +38,12 @@ public class Alert implements CommandExecutor, Listener {
 	private static final String RECEIVE_SUSPICIOUS_CMD_PERMISSION = "arcane.alert.receive.command.suspicious";
 	private static final String EXEMPT_PERMISSION = "arcane.alert.ignore.command.common";
 	private static final String OP_PERMISSION = "arcane.alert.op";
+	private static final String IGNORE_CONFIG = "alert.commands.ignore";
+	private static final String SUSPICIOUS_CONFIG = "alert.commands.suspicious";
 	private final HashMap<Player,ReceiveLevel> modReceive = new HashMap<>(); // in case someone wants to stream or play normally
 	private final HashMap<Player, DiamondCounter> diamondMineMap = new HashMap<>(); // for Diamond Timing
-	private final HashSet<String> cmdIgnore; // Commands to ignore for everyone, e.g. everyone receives result of this command
-	private final HashSet<String> cmdSuspicious; // Suspicious commands to alert at all times
+	private HashSet<String> cmdIgnore; // Commands to ignore for everyone, e.g. everyone receives result of this command
+	private HashSet<String> cmdSuspicious; // Suspicious commands to alert at all times
 	
 	private static enum ReceiveLevel {
 		ALL,SUSPICIOUS,NONE
@@ -51,9 +53,11 @@ public class Alert implements CommandExecutor, Listener {
 		{"alert", "show this screen"},
 		{"alert <on|off>", "turn alerts on or off", "if off, you won't receive diamond alerts as well."},
 		{"alert suspicious", "only receive suspicious alerts", "Basically, reveive alerts at moderator level.", RECEIVE_ALL_CMD_PERMISSION},
-		{"alert all", "receive alerts for all commands", "this still hides ignored commands.", RECEIVE_ALL_CMD_PERMISSION},
-		{"alert ignore [command]", "list/register commands to ignore", "If [command] is empty, show the list.\nIf it has something, add it to the list.", OP_PERMISSION},
-		{"alert toall [command]", "list/register suspicious commands", "If [command] is empty, show the list.\nIf it has something, add it to the list.", OP_PERMISSION}
+		{"alert everything", "receive alerts for everyone", "This includes commands run by players with ignore permission.\nThis still hides ignored commands.", RECEIVE_ALL_CMD_PERMISSION},
+		{"alert ignore", "list/register commands to ignore", "Usage: /alert ignore [command|-command]", OP_PERMISSION},
+		{"alert toall", "list/register suspicious commands", "Usage: /alert toall [command|-command]", OP_PERMISSION},
+		{"For ignore/toall, append command name to register."},
+		{"Prepend \"-\" to command name to remove from list."},
 	};
 	
 	// TODO: Develop lists
@@ -63,17 +67,22 @@ public class Alert implements CommandExecutor, Listener {
 		this.scheduler = plugin.getServer().getScheduler();
 		cmdIgnore = new HashSet<>();
 		cmdSuspicious = new HashSet<>();
-		TAG_DIAMOND_ALERT = new TextComponent("[");
-		TextComponent inner = new TextComponent("!");
-		inner.setColor(ChatColor.RED);
-		inner.setBold(false);
-		TAG_DIAMOND_ALERT.addExtra(inner);
-		TAG_DIAMOND_ALERT.addExtra("] ");
-		TAG_DIAMOND_ALERT.setBold(true);
-		TAG_DIAMOND_ALERT.setColor(ChatColor.RED);
-		TAG_COMMAND_ALERT = new TextComponent("A // ");
-		TAG_COMMAND_ALERT.setItalic(false);
-		TAG_COMMAND_ALERT.setColor(ChatColor.DARK_RED);
+		
+		// Load configuration
+		cmdIgnore = new HashSet<String>(plugin.getConfig().getStringList(IGNORE_CONFIG));
+		cmdSuspicious = new HashSet<String>(plugin.getConfig().getStringList(SUSPICIOUS_CONFIG));
+		
+		// Pre-generate messages
+		TextComponent alertTag = new TextComponent("<!> ");
+		alertTag.setBold(true);
+		alertTag.setItalic(false);
+		TEMPLATE_DIAMOND_ALERT = new TextComponent();
+		TEMPLATE_DIAMOND_ALERT.addExtra(alertTag);
+		TEMPLATE_DIAMOND_ALERT.setColor(ColorPalette.HEADING);
+		TEMPLATE_COMMAND_ALERT = new TextComponent();
+		TEMPLATE_COMMAND_ALERT.addExtra(alertTag);
+		TEMPLATE_COMMAND_ALERT.setColor(ChatColor.DARK_GRAY);
+		TEMPLATE_COMMAND_ALERT.setItalic(true);
 	}
 
 	/**
@@ -87,29 +96,30 @@ public class Alert implements CommandExecutor, Listener {
 	}
 	
 	private final TextComponent diamondAlertMsg(Player p, int count, Block lastBlock) {
-		TextComponent ret = new TextComponent();
-		ret.addExtra(TAG_DIAMOND_ALERT);
-		ret.addExtra(p.getName() + " ");
-		TextComponent a = new TextComponent("just mined");
-		a.setColor(ChatColor.DARK_GRAY);
+		TextComponent ret = (TextComponent)TEMPLATE_DIAMOND_ALERT.duplicate();
+		TextComponent a = new TextComponent(p.getName());
+		a.setColor(ColorPalette.FOCUS);
 		ret.addExtra(a);
-		ret.addExtra(" " + count + " diamond ore" + (count == 1 ? "" : "s") + ".");
+		ret.addExtra(" just mined ");
+		a = new TextComponent(count + " diamond ore" + (count == 1 ? "" : "s"));
+		a.setColor(ColorPalette.FOCUS);
+		ret.addExtra(a);
+		ret.addExtra(".");
 		addLocationClickEvent(ret,lastBlock.getLocation());
-		ret.setColor(ChatColor.GRAY);
 		return ret;
 	}
 	
 	private final TextComponent commandAlertMsg(Player p, String command) {
-		TextComponent ret = new TextComponent();
-		ret.addExtra(TAG_COMMAND_ALERT);
-		ret.addExtra(p.getName());
-		TextComponent a = new TextComponent(":");
-		a.setColor(ChatColor.DARK_GRAY);
+		TextComponent ret = (TextComponent)TEMPLATE_COMMAND_ALERT.duplicate();
+		TextComponent a = new TextComponent(p.getName());
+		a.setColor(ChatColor.GRAY);
 		ret.addExtra(a);
-		ret.addExtra(" " + command);
+		ret.addExtra(" ran ");
+		a = new TextComponent(command);
+		a.setColor(ChatColor.GRAY);
+		ret.addExtra(a);
+		ret.addExtra(".");
 		addLocationClickEvent(ret,p.getLocation());
-		ret.setColor(ChatColor.GRAY);
-		ret.setItalic(true);
 		return ret;
 	}
 	
@@ -120,7 +130,7 @@ public class Alert implements CommandExecutor, Listener {
 		case ALL:
 			return ColorPalette.POSITIVE + "every single";
 		case SUSPICIOUS:
-			return ColorPalette.FOCUS + "only suspicious";
+			return ColorPalette.FOCUS + "suspicious";
 		case NONE:
 			return ColorPalette.NEGATIVE + "no";
 		}
@@ -140,39 +150,52 @@ public class Alert implements CommandExecutor, Listener {
 			ArcaneCommons.sendCommandMenu(sender, "Alert Menu", ALERT_HELP, footer);
 			return true;
 		}
-		if(args[0].equalsIgnoreCase("ignore")
-				|| args[0].equalsIgnoreCase("toall")) {
-			sender.sendMessage("This was not yet developed.");
-			/* TODO
-			if(!args[1].equalsIgnoreCase("exempt")&&!args[1].equalsIgnoreCase("notifyall")) {
-				sender.sendMessage("§7> <exempt|notifyall> [command|-command]... - adds or removes flags.");
+		if(args[0].equalsIgnoreCase("ignore") || args[0].equalsIgnoreCase("toall")) {
+			boolean isIgnore = args[0].equalsIgnoreCase("ignore");
+			String config = isIgnore ? IGNORE_CONFIG : SUSPICIOUS_CONFIG;
+			HashSet<String> set = (isIgnore?cmdIgnore:cmdSuspicious);
+			
+			if (args.length == 1) {
+				StringBuilder send = new StringBuilder(isIgnore ? "Ignored commands:" : "Suspicious commands:").append(ColorPalette.FOCUS);
+				for (String cmd : set) {
+					send.append(" /").append(cmd);
+				}
+				sender.sendMessage(ArcaneCommons.tag(TAG, send.toString()));
 				return true;
-			}
-			HashSet<String> S = null;
-			S = (args[1].equalsIgnoreCase("exempt")?ALERT_EXEMPT:ALERT_TOALL);
-			for(int i=2; i < args.length;i++) {
-				String[] t = {args[1].toLowerCase(),args[i]};
-				if(args[i].startsWith("-")){
-					t[1] = t[1].substring(1);
-					if(S.remove(t)) {
-						this.getConfig().getStringList("alert.commands."+t[0]).remove(t[1]);
-						Bukkit.broadcast(ALERT_TAG+"§7/"+t[1]+" removed from "+t[0]+".", "simonplugin.op");
+    		}
+			
+			String listName = isIgnore ? "ignore list" : "toall list";
+			
+			for (int i = 1; i < args.length; i++) {
+				String c = args[i].toLowerCase();
+				boolean add = true;
+				if (c.startsWith("-")) {
+					c = c.substring(1);
+					add = false;
+				}
+				if (c.startsWith("/")) c = c.substring(1);
+				
+				if (add) {
+					if (set.add(c)) {
+						plugin.getConfig().getStringList(config).add(c);
+						plugin.getServer().broadcast(ArcaneCommons.tag(TAG, "/"+c+" is added to the "+listName+"."), OP_PERMISSION);
 					}
 					else {
-						sender.sendMessage(ALERT_TAG+"§7/"+t[1]+" does not exist in "+t[0]+".");
+						sender.sendMessage(ArcaneCommons.tag(TAG, "/"+c+" already exists in the "+listName+"."));
 					}
 				}
 				else {
-					if(S.add(args[i])) {
-						this.getConfig().getStringList("alert.commands."+t[0]).add(t[1]);
-						Bukkit.broadcast(ALERT_TAG+"§7/"+t[1]+" added to "+t[0]+".", "simonplugin.op");
+					if (set.remove(c)) {
+						plugin.getConfig().getStringList(config).add(c);
+						plugin.getServer().broadcast(ArcaneCommons.tag(TAG, "/"+c+" is removed from the "+listName+"."), OP_PERMISSION);
 					}
 					else {
-						sender.sendMessage(ALERT_TAG+"§7/"+t[1]+" already exists in "+t[0]+".");
+						sender.sendMessage(ArcaneCommons.tag(TAG, "/"+c+" does not exist in the "+listName+"."));
 					}
 				}
+				plugin.saveConfig();
 			}
-			*/
+			
 			return true;
 		}
 		if (!(sender instanceof Player)) {
@@ -196,7 +219,7 @@ public class Alert implements CommandExecutor, Listener {
 			}
 			rl = ReceiveLevel.SUSPICIOUS;
 			break;
-		case "all":
+		case "everything":
 			if (!sender.hasPermission(RECEIVE_ALL_CMD_PERMISSION)) {
 				sender.sendMessage(ArcaneCommons.noPermissionMsg("alert", "all"));
 				return true;

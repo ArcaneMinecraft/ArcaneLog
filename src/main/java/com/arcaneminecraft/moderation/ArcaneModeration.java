@@ -10,6 +10,7 @@ import com.arcaneminecraft.ArcaneCommons;
 public final class ArcaneModeration extends JavaPlugin {
 	@Override
 	public void onEnable() {
+		this.saveDefaultConfig();
 		Alert al = new Alert(this);
 		getCommand("alert").setExecutor(al);
 		getServer().getPluginManager().registerEvents(al, this);
@@ -30,8 +31,12 @@ public final class ArcaneModeration extends JavaPlugin {
 		
 		if (cmd.getName().equalsIgnoreCase("opme")) {
 			if (sender.hasPermission("arcane.op")) {
-				sender.setOp(true);
-				sender.sendMessage(ArcaneCommons.tag("OP","You have been opped. Use it with care."));
+				if (sender.isOp()) {
+					sender.sendMessage(ArcaneCommons.tag("OP","You are already opped. Use /deop to remove op."));
+				} else {
+					sender.setOp(true);
+					sender.sendMessage(ArcaneCommons.tag("OP","You have been opped. Use it with care."));
+				}
 			} else {
 				sender.sendMessage(ArcaneCommons.noPermissionMsg(label));
 				return true;
