@@ -21,7 +21,7 @@ public final class ArcaneModeration extends JavaPlugin {
 		// Changes gamemode. This is pretty awesome.
 		// g0, g1, g2, g3
 		if (cmd.getName().equalsIgnoreCase("g0")) {
-			if (sender.hasPermission("arcane.op") || sender.hasPermission("minecraft.command.gamemode")) {
+			if (sender.hasPermission("arcane.command.g0") || sender.hasPermission("minecraft.command.gamemode")) {
 				return ((Player)sender).performCommand("gamemode " + label.charAt(1) + (args.length == 0 ? "" : " " + args[0]));
 			} else {
 				sender.sendMessage(ArcaneCommons.noPermissionMsg(label));
@@ -30,7 +30,7 @@ public final class ArcaneModeration extends JavaPlugin {
 		}
 		
 		if (cmd.getName().equalsIgnoreCase("opme")) {
-			if (sender.hasPermission("arcane.op")) {
+			if (sender.hasPermission("arcane.command.opme")) {
 				if (sender.isOp()) {
 					sender.sendMessage(ArcaneCommons.tag("OP","You are already opped. Use /deop to remove op."));
 				} else {

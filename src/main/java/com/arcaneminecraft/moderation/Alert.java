@@ -36,8 +36,9 @@ public class Alert implements CommandExecutor, Listener {
 	private static final String DIAMOND_PERMISSION = "arcane.alert.receive.antixray";
 	private static final String RECEIVE_ALL_CMD_PERMISSION = "arcane.alert.receive.command.all";
 	private static final String RECEIVE_SUSPICIOUS_CMD_PERMISSION = "arcane.alert.receive.command.suspicious";
-	private static final String EXEMPT_PERMISSION = "arcane.alert.ignore.command.common";
-	private static final String OP_PERMISSION = "arcane.alert.op";
+	private static final String EXEMPT_PERMISSION = "arcane.alert.ignore";
+	private static final String CMD_USAGE_PERMISSION = "arcane.command.alert";
+	private static final String CMD_ADMIN_PERMISSION = "arcane.command.alert.admin";
 	private static final String IGNORE_CONFIG = "alert.commands.ignore";
 	private static final String SUSPICIOUS_CONFIG = "alert.commands.suspicious";
 	private final HashMap<Player,ReceiveLevel> modReceive = new HashMap<>(); // in case someone wants to stream or play normally
@@ -54,8 +55,8 @@ public class Alert implements CommandExecutor, Listener {
 		{"alert <on|off>", "turn alerts on or off", "if off, you won't receive diamond alerts as well."},
 		{"alert suspicious", "only receive suspicious alerts", "Basically, reveive alerts at moderator level.", RECEIVE_ALL_CMD_PERMISSION},
 		{"alert everything", "receive alerts for everyone", "This includes commands run by players with ignore permission.\nThis still hides ignored commands.", RECEIVE_ALL_CMD_PERMISSION},
-		{"alert ignore", "list/register commands to ignore", "Usage: /alert ignore [command|-command]", OP_PERMISSION},
-		{"alert toall", "list/register suspicious commands", "Usage: /alert toall [command|-command]", OP_PERMISSION},
+		{"alert ignore", "list/register commands to ignore", "Usage: /alert ignore [command|-command]", CMD_ADMIN_PERMISSION},
+		{"alert toall", "list/register suspicious commands", "Usage: /alert toall [command|-command]", CMD_ADMIN_PERMISSION},
 		{"For ignore/toall, append command name to register."},
 		{"Prepend \"-\" to command name to remove from list."},
 	};
@@ -139,6 +140,11 @@ public class Alert implements CommandExecutor, Listener {
 	
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+		if (!sender.hasPermission(CMD_USAGE_PERMISSION) || !sender.hasPermission(CMD_ADMIN_PERMISSION)) {
+			sender.sendMessage(ArcaneCommons.noPermissionMsg(label));
+			return true;
+		}
+		
 		if (args.length == 0) {
 			
 			String[] footer = {
@@ -178,7 +184,7 @@ public class Alert implements CommandExecutor, Listener {
 				if (add) {
 					if (set.add(c)) {
 						plugin.getConfig().getStringList(config).add(c);
-						plugin.getServer().broadcast(ArcaneCommons.tag(TAG, "/"+c+" is added to the "+listName+"."), OP_PERMISSION);
+						plugin.getServer().broadcast(ArcaneCommons.tag(TAG, "/"+c+" is added to the "+listName+"."), CMD_ADMIN_PERMISSION);
 					}
 					else {
 						sender.sendMessage(ArcaneCommons.tag(TAG, "/"+c+" already exists in the "+listName+"."));
@@ -187,7 +193,7 @@ public class Alert implements CommandExecutor, Listener {
 				else {
 					if (set.remove(c)) {
 						plugin.getConfig().getStringList(config).add(c);
-						plugin.getServer().broadcast(ArcaneCommons.tag(TAG, "/"+c+" is removed from the "+listName+"."), OP_PERMISSION);
+						plugin.getServer().broadcast(ArcaneCommons.tag(TAG, "/"+c+" is removed from the "+listName+"."), CMD_ADMIN_PERMISSION);
 					}
 					else {
 						sender.sendMessage(ArcaneCommons.tag(TAG, "/"+c+" does not exist in the "+listName+"."));
