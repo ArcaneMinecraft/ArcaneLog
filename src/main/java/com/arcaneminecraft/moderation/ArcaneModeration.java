@@ -22,7 +22,7 @@ public final class ArcaneModeration extends JavaPlugin {
 		// g0, g1, g2, g3
 		if (cmd.getName().equalsIgnoreCase("g0")) {
 			if (sender.hasPermission("arcane.op") || sender.hasPermission("minecraft.command.gamemode")) {
-				return ((Player)sender).performCommand("gamemode " + label.charAt(1));
+				return ((Player)sender).performCommand("gamemode " + label.charAt(1) + (args.length == 0 ? "" : " " + args[0]));
 			} else {
 				sender.sendMessage(ArcaneCommons.noPermissionMsg(label));
 				return true;
