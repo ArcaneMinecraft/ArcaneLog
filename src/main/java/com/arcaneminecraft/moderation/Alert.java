@@ -140,7 +140,7 @@ public class Alert implements CommandExecutor, Listener {
 	
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-		if (!sender.hasPermission(CMD_USAGE_PERMISSION) || !sender.hasPermission(CMD_ADMIN_PERMISSION)) {
+		if (!sender.hasPermission(CMD_USAGE_PERMISSION)) {
 			sender.sendMessage(ArcaneCommons.noPermissionMsg(label));
 			return true;
 		}
@@ -220,14 +220,14 @@ public class Alert implements CommandExecutor, Listener {
 			break;
 		case "suspicious":
 			if (!sender.hasPermission(RECEIVE_ALL_CMD_PERMISSION)) {
-				sender.sendMessage(ArcaneCommons.noPermissionMsg("alert", "suspicious"));
+				sender.sendMessage(ArcaneCommons.noPermissionMsg(label, "suspicious"));
 				return true;
 			}
 			rl = ReceiveLevel.SUSPICIOUS;
 			break;
 		case "everything":
 			if (!sender.hasPermission(RECEIVE_ALL_CMD_PERMISSION)) {
-				sender.sendMessage(ArcaneCommons.noPermissionMsg("alert", "all"));
+				sender.sendMessage(ArcaneCommons.noPermissionMsg(label, "all"));
 				return true;
 			}
 			rl = ReceiveLevel.ALL;
