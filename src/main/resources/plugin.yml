@@ -1,5 +1,5 @@
 name: ArcaneModeration
-version: 2.0.0-SNAPSHOT
+version: ${project.version}
 authors: [Agentred100, jugglingman456, SimonOrJ]
 description: Arcane Moderation Plugin
 main: com.arcaneminecraft.moderation.ArcaneModeration
