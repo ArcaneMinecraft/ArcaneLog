@@ -15,7 +15,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
-import org.bukkit.scheduler.BukkitScheduler;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import com.arcaneminecraft.ArcaneCommons;
 import com.arcaneminecraft.ColorPalette;
@@ -27,12 +27,11 @@ import net.md_5.bungee.api.chat.TextComponent;
 
 public class Alert implements CommandExecutor, Listener {
 	private final ArcaneModeration plugin;
-	private final BukkitScheduler scheduler;
 	private final TextComponent TEMPLATE_DIAMOND_ALERT; // NOTE: Don't addExtra this.
 	private final TextComponent TEMPLATE_COMMAND_ALERT; // NOTE: Don't addExtra this.
 	private static final String TAG = "Alert";
 	private static final int DIAMOND_LEVEL = 16; // AntiXRay
-	private static final long DIAMOND_DELAY = 160L; // in ticks: 160 ticks = 8 seconds, enough for mining 8 diamonds with regular pickaxe
+	private static final long DIAMOND_DELAY = 100L; // in ticks: 100 ticks = 5 seconds. Timer resets every time person mines a diamond.
 	private static final String DIAMOND_PERMISSION = "arcane.alert.receive.antixray";
 	private static final String RECEIVE_ALL_CMD_PERMISSION = "arcane.alert.receive.command.all";
 	private static final String RECEIVE_SUSPICIOUS_CMD_PERMISSION = "arcane.alert.receive.command.suspicious";
@@ -65,7 +64,6 @@ public class Alert implements CommandExecutor, Listener {
 
 	Alert(ArcaneModeration plugin) {
 		this.plugin = plugin;
-		this.scheduler = plugin.getServer().getScheduler();
 		cmdIgnore = new HashSet<>();
 		cmdSuspicious = new HashSet<>();
 		
@@ -254,8 +252,7 @@ public class Alert implements CommandExecutor, Listener {
 		
 		Player p = e.getPlayer();
 		TextComponent msg = commandAlertMsg(p,m);
-		
-		
+				
 		if (cmdSuspicious.contains(cmd)) {
 			for (Player receiver : plugin.getServer().getOnlinePlayers()) {
 				if (receiver.hasPermission(RECEIVE_SUSPICIOUS_CMD_PERMISSION) && modReceive.get(receiver) != ReceiveLevel.NONE) {
@@ -280,14 +277,14 @@ public class Alert implements CommandExecutor, Listener {
 	@EventHandler
 	public void onBlockBreak(BlockBreakEvent e) {
 		Block b = e.getBlock();
-		Player p = e.getPlayer();
 		if (b.getY() <= DIAMOND_LEVEL && b.getType() == Material.DIAMOND_ORE)
 		{
+			Player p = e.getPlayer();
 			DiamondCounter c = diamondMineMap.get(p);
 			if (c == null) {
 				c = new DiamondCounter(p,b);
 				diamondMineMap.put(p, c);
-				scheduler.runTaskLater(plugin, c, DIAMOND_DELAY);
+				c.runTaskLater(plugin, DIAMOND_DELAY);
 			} else {
 				c.increment(b);
 			}
@@ -295,9 +292,9 @@ public class Alert implements CommandExecutor, Listener {
 	}
 	
 	// Runnable DiamondCounter Class for counting mined diamonds
-	private class DiamondCounter implements Runnable {
+	private class DiamondCounter extends BukkitRunnable {
 		private final Player p;
-		private int count = 1;
+		private int count = 0;
 		private Block lastMined;
 		
 		DiamondCounter(Player p, Block justMined) {
@@ -306,6 +303,8 @@ public class Alert implements CommandExecutor, Listener {
 		}
 		
 		void increment(Block justMined) {
+			this.cancel();
+			this.runTaskLater(plugin, DIAMOND_DELAY);
 			lastMined = justMined;
 			count++;
 		}
