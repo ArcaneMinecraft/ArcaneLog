@@ -31,7 +31,7 @@ public class Alert implements CommandExecutor, Listener {
 	private final TextComponent TEMPLATE_COMMAND_ALERT; // NOTE: Don't addExtra this.
 	private static final String TAG = "Alert";
 	private static final int DIAMOND_LEVEL = 16; // AntiXRay
-	private static final long DIAMOND_DELAY = 100L; // in ticks: 100 ticks = 5 seconds. Timer resets every time person mines a diamond.
+	private static final long DIAMOND_DELAY = 160L; // in ticks: 160 ticks = 8 seconds.
 	private static final String DIAMOND_PERMISSION = "arcane.alert.receive.antixray";
 	private static final String RECEIVE_ALL_CMD_PERMISSION = "arcane.alert.receive.command.all";
 	private static final String RECEIVE_SUSPICIOUS_CMD_PERMISSION = "arcane.alert.receive.command.suspicious";
@@ -303,8 +303,6 @@ public class Alert implements CommandExecutor, Listener {
 		}
 		
 		void increment(Block justMined) {
-			this.cancel();
-			this.runTaskLater(plugin, DIAMOND_DELAY);
 			lastMined = justMined;
 			count++;
 		}
