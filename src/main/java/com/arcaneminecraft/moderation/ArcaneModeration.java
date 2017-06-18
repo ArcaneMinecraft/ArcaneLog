@@ -22,6 +22,11 @@ public final class ArcaneModeration extends JavaPlugin {
 		// g0, g1, g2, g3
 		if (cmd.getName().equalsIgnoreCase("g0")) {
 			if (sender.hasPermission("arcane.command.g0") || sender.hasPermission("minecraft.command.gamemode")) {
+				if (args.length == 0 && !(sender instanceof Player)) {
+					sender.sendMessage(ArcaneCommons.noConsoleMsg());
+					return true;
+				}
+
 				return ((Player)sender).performCommand("gamemode " + label.charAt(1) + (args.length == 0 ? "" : " " + args[0]));
 			} else {
 				sender.sendMessage(ArcaneCommons.noPermissionMsg(label));
@@ -35,6 +40,7 @@ public final class ArcaneModeration extends JavaPlugin {
 					sender.sendMessage(ArcaneCommons.tag("OP","You are already opped. Use /deop to remove op."));
 				} else {
 					sender.setOp(true);
+					getLogger().warning(sender.getName() + " opped self.");
 					sender.sendMessage(ArcaneCommons.tag("OP","You have been opped. Use it with care."));
 				}
 			} else {
