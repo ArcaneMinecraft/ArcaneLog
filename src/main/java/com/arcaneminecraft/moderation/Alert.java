@@ -64,8 +64,6 @@ public class Alert implements CommandExecutor, Listener {
 
 	Alert(ArcaneModeration plugin) {
 		this.plugin = plugin;
-		cmdIgnore = new HashSet<>();
-		cmdSuspicious = new HashSet<>();
 		
 		// Load configuration
 		cmdIgnore = new HashSet<String>(plugin.getConfig().getStringList(IGNORE_CONFIG));
@@ -181,7 +179,7 @@ public class Alert implements CommandExecutor, Listener {
 				
 				if (add) {
 					if (set.add(c)) {
-						plugin.getConfig().getStringList(config).add(c);
+						plugin.getConfig().set(config, set.toArray());
 						plugin.getServer().broadcast(ArcaneCommons.tag(TAG, "/"+c+" is added to the "+listName+"."), CMD_ADMIN_PERMISSION);
 					}
 					else {
@@ -190,7 +188,7 @@ public class Alert implements CommandExecutor, Listener {
 				}
 				else {
 					if (set.remove(c)) {
-						plugin.getConfig().getStringList(config).add(c);
+						plugin.getConfig().set(config, set.toArray());
 						plugin.getServer().broadcast(ArcaneCommons.tag(TAG, "/"+c+" is removed from the "+listName+"."), CMD_ADMIN_PERMISSION);
 					}
 					else {
