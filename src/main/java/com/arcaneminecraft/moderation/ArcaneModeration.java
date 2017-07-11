@@ -11,9 +11,14 @@ public final class ArcaneModeration extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		this.saveDefaultConfig();
-		Alert al = new Alert(this);
-		getCommand("alert").setExecutor(al);
-		getServer().getPluginManager().registerEvents(al, this);
+		Alert alert = new Alert(this);
+		getCommand("alert").setExecutor(alert);
+		getServer().getPluginManager().registerEvents(alert, this);
+	}
+	
+	@Override
+	public void onDisable() {
+		this.saveConfig();
 	}
 	
 	@Override
