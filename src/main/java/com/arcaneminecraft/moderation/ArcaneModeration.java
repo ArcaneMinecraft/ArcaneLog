@@ -31,8 +31,11 @@ public final class ArcaneModeration extends JavaPlugin {
 					sender.sendMessage(ArcaneCommons.noConsoleMsg());
 					return true;
 				}
-
-				return ((Player)sender).performCommand("gamemode " + label.charAt(1) + (args.length == 0 ? "" : " " + args[0]));
+				String c = "gamemode " + label.charAt(1) + (args.length == 0 ? "" : " " + args[0]);
+				if (sender instanceof Player) 
+					return ((Player)sender).performCommand(c);
+				else
+					return getServer().dispatchCommand(getServer().getConsoleSender(), c);
 			} else {
 				sender.sendMessage(ArcaneCommons.noPermissionMsg(label));
 				return true;
