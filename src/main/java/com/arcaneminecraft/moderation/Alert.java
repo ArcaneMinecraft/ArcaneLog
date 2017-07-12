@@ -292,7 +292,7 @@ public class Alert implements CommandExecutor, Listener {
 	// Runnable DiamondCounter Class for counting mined diamonds
 	private class DiamondCounter extends BukkitRunnable {
 		private final Player p;
-		private int count = 0;
+		private int count = 1;
 		private Block lastMined;
 		
 		DiamondCounter(Player p, Block justMined) {
