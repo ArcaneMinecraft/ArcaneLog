@@ -5,7 +5,7 @@ description: Arcane Moderation Plugin
 main: com.arcaneminecraft.moderation.ArcaneModeration
 website: https://arcaneminecraft.com/
 
-depend: [ArcaneSurvival]
+depend: [ArcaneAPI]
 
 commands:
   alert:

@@ -5,7 +5,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import com.arcaneminecraft.ArcaneCommons;
+import com.arcaneminecraft.api.ArcaneCommons;
 
 public final class ArcaneModeration extends JavaPlugin {
 	@Override
