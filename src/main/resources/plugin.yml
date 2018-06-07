@@ -6,3 +6,4 @@ main: com.arcaneminecraft.log.ArcaneLog
 website: https://arcaneminecraft.com/
 
 depend: [ArcaneAPI]
+softdepend: [CoreProtect]
