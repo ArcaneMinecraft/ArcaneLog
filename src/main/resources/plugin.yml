@@ -1,48 +1,8 @@
-name: ArcaneModeration
+name: ArcaneLog
 version: ${project.version}
 authors: [Agentred100, jugglingman456, SimonOrJ]
-description: Arcane Moderation Plugin
-main: com.arcaneminecraft.moderation.ArcaneModeration
+description: Arcane Logging
+main: com.arcaneminecraft.log.ArcaneLog
 website: https://arcaneminecraft.com/
 
 depend: [ArcaneAPI]
-
-commands:
-  alert:
-    description: Modify types of alerts received
-    usage: /alert
-  opme:
-    description: Ops the command-running layer
-    permission: arcane.command.opme
-  g0:
-    aliases: [g1, g2, g3, gsurvival, gcreative, gadventure, gspectator]
-    description: Admin command; change gamemode
-    usage: /g<gamemode>
-
-permissions:
-  arcane.command.opme: # DANGEROUS PERMISSION: do NOT give this to common players
-    default: op
-  arcane.command.g0: # also controls g1, g2, and g3
-    default: op
-  arcane.command.alert: # Alert command usage permission
-    default: op
-  arcane.command.alert.admin: # Alert management plugin
-    default: op
-    children:
-      arcane.command.alert: true
-  arcane.alert.receive: # command alerts will not flood into console
-    default: op
-    children:
-      arcane.alert.receive.command.all: true
-      arcane.alert.receive.command.suspicious: true
-      arcane.alert.receive.antixray: true
-  arcane.alert.receive.command.all: # Allow receiving of all command alerts
-    default: op
-    children:
-      arcane.alert.receive.command.suspicious: true
-  arcane.alert.receive.command.suspicious: # Receive suspicious command alerts (but not all)
-    default: op
-  arcane.alert.receive.antixray: # Receive diamond alerts
-    default: op
-  arcane.alert.ignore: # Ignore this player's common command usage
-    default: op
