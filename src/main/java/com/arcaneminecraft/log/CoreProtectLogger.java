@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 
 class CoreProtectLogger {
     private final ServerSocket sock; // port 30000
@@ -24,11 +25,9 @@ class CoreProtectLogger {
         sock = new ServerSocket(logPort, 0, Inet4Address.getByName(logIP));
 
         plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
-            try {
-                //noinspection InfiniteLoopStatement
-                while (true){
-                    //init the client
-                    Socket incoming = sock.accept();
+            while (true){
+                //init the client
+                try (Socket incoming = sock.accept()) {
 
                     //Read the data
                     DataInputStream dis = new DataInputStream(incoming.getInputStream());
@@ -41,12 +40,22 @@ class CoreProtectLogger {
                     writeCore(new DummyPlayer(pName, pDisplayName, pUUID), msg);
 
                     dis.close();
-                    incoming.close();
+                } catch (SocketException e) {
+                    plugin.getLogger().info( "[CoreProtectLogger] " + e.getMessage() + " (Plugin disabled?)");
+                    break;
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
             }
         });
+    }
+
+    void onDisable() {
+        try {
+            sock.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private CoreProtectAPI getCoreProtect() {
