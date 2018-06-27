@@ -4,58 +4,12 @@ import net.coreprotect.CoreProtect;
 import net.coreprotect.CoreProtectAPI;
 import org.bukkit.plugin.Plugin;
 
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.net.Inet4Address;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.SocketException;
-
 class CoreProtectLogger {
-    private final ServerSocket sock; // port 30000
     private final ArcaneLog plugin;
     private CoreProtectAPI coreprotect;
 
-    CoreProtectLogger(ArcaneLog plugin) throws IOException {
-        String logIP = "127.0.0.1";
-        int logPort = 25555;
-
+    CoreProtectLogger(ArcaneLog plugin) {
         this.plugin = plugin;
-
-        sock = new ServerSocket(logPort, 0, Inet4Address.getByName(logIP));
-
-        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
-            while (true){
-                //init the client
-                try (Socket incoming = sock.accept()) {
-
-                    //Read the data
-                    DataInputStream dis = new DataInputStream(incoming.getInputStream());
-                    String msg = dis.readUTF();
-                    String pName = dis.readUTF();
-                    String pDisplayName = dis.readUTF();
-                    String pUUID = dis.readUTF();
-                    // Log the message
-
-                    writeCore(new DummyPlayer(pName, pDisplayName, pUUID), msg);
-
-                    dis.close();
-                } catch (SocketException e) {
-                    plugin.getLogger().info( "[CoreProtectLogger] " + e.getMessage() + " (Plugin disabled?)");
-                    break;
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-    }
-
-    void onDisable() {
-        try {
-            sock.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     private CoreProtectAPI getCoreProtect() {
@@ -84,7 +38,7 @@ class CoreProtectLogger {
         return coreprotect;
     }
 
-    private void writeCore(DummyPlayer dummyPlayer, String msg) {
+    void writeCore(DummyPlayer dummyPlayer, String msg) {
         if (getCoreProtect() == null) {
             return;
         }
