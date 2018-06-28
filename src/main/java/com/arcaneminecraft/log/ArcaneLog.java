@@ -61,6 +61,7 @@ public final class ArcaneLog extends JavaPlugin {
             return;
         }
 
+        // Preferably returns the old name to detect name change on login
         if (type.equals("GetPlayerName")) {
             UUID u = UUID.fromString(dis.readUTF());
 
