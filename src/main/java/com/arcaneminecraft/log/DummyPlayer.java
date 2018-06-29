@@ -43,12 +43,6 @@ public final class DummyPlayer implements Player {
         this.uuid = UUID.fromString(uuid);
     }
 
-    DummyPlayer(String name, String displayName, UUID uuid) {
-        this.name = name;
-        this.displayName = displayName;
-        this.uuid = uuid;
-    }
-
     @Override
     public String getDisplayName() {
         return displayName;
