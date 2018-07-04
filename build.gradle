@@ -16,6 +16,4 @@ repositories {
 dependencies {
     compileOnly 'org.spigotmc:spigot-api:1.12.2-R0.1-SNAPSHOT'
     compileOnly 'me.lucko.luckperms:luckperms-api:4.2'
-    compileOnly files('libs/ArcaneAPI-3.0-SNAPSHOT.jar')
-    compileOnly files('libs/CoreProtect_2.14.2.jar')
-}
+    compileOnly fileTree(dir: 'libs', include: '*.jar')}
