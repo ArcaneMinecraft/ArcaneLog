@@ -7,6 +7,7 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.block.Block;
 import org.bukkit.block.PistonMoveReaction;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.conversations.Conversation;
 import org.bukkit.conversations.ConversationAbandonedEvent;
 import org.bukkit.entity.*;
@@ -232,15 +233,14 @@ public final class DummyPlayer implements Player {
     }
 
     @Override
-    @Deprecated
-    public boolean sendChunkChange(Location loc, int sx, int sy, int sz, byte[] data) {
-        return false;
+    public void sendBlockChange(Location loc, BlockData block) {
+
     }
 
     @Override
     @Deprecated
-    public void sendBlockChange(Location loc, int material, byte data) {
-
+    public boolean sendChunkChange(Location loc, int sx, int sy, int sz, byte[] data) {
+        return false;
     }
 
     @Override
@@ -1375,6 +1375,16 @@ public final class DummyPlayer implements Player {
 
     @Override
     public void setGliding(boolean gliding) {
+
+    }
+
+    @Override
+    public boolean isSwimming() {
+        return false;
+    }
+
+    @Override
+    public void setSwimming(boolean swimming) {
 
     }
 

@@ -1,3 +1,5 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+
 plugins {
     id 'java'
 }
@@ -14,6 +16,11 @@ repositories {
 }
 
 dependencies {
-    compileOnly 'org.spigotmc:spigot-api:1.12.2-R0.1-SNAPSHOT'
+    compile 'org.spigotmc:spigot-api:1.13-R0.1-SNAPSHOT'
     compileOnly 'me.lucko.luckperms:luckperms-api:4.2'
-    compileOnly fileTree(dir: 'libs', include: '*.jar')}
+    compileOnly fileTree(dir: 'libs', include: '*.jar')
+}
+
+processResources {
+    filter ReplaceTokens, tokens:["version": project.version]
+}
