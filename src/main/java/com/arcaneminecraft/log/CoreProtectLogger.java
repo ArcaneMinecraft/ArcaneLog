@@ -42,7 +42,9 @@ class CoreProtectLogger {
         if (getCoreProtect() == null) {
             return;
         }
-        if (msg.startsWith("/")) coreprotect.logCommand(dummyPlayer, msg);
-        else coreprotect.logChat(dummyPlayer, msg);
+        plugin.getServer().getScheduler().runTask(plugin, () -> {
+            if (msg.startsWith("/")) coreprotect.logCommand(dummyPlayer, msg);
+            else coreprotect.logChat(dummyPlayer, msg);
+        });
     }
 }
