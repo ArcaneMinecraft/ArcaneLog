@@ -1,7 +1,0 @@
-alert:
-  commands:
-    ignore:
-      - msg
-    suspicious:
-      - op
-      - gamemode
