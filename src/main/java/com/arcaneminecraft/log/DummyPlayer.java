@@ -65,6 +65,31 @@ public final class DummyPlayer implements Player {
     }
 
     @Override
+    public String getPlayerListHeader() {
+        return null;
+    }
+
+    @Override
+    public String getPlayerListFooter() {
+        return null;
+    }
+
+    @Override
+    public void setPlayerListHeader(String s) {
+
+    }
+
+    @Override
+    public void setPlayerListFooter(String s) {
+
+    }
+
+    @Override
+    public void setPlayerListHeaderFooter(String s, String s1) {
+
+    }
+
+    @Override
     public void setCompassTarget(Location loc) {
 
     }
@@ -853,6 +878,16 @@ public final class DummyPlayer implements Player {
     @Override
     public Server getServer() {
         return null;
+    }
+
+    @Override
+    public boolean isPersistent() {
+        return false;
+    }
+
+    @Override
+    public void setPersistent(boolean b) {
+
     }
 
     @Override
